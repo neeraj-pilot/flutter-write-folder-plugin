@@ -23,7 +23,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'
+          flutter-version: '3.32.8'
           channel: 'stable'
 
       - name: Install dependencies
@@ -56,7 +56,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'
+          flutter-version: '3.32.8'
           channel: 'stable'
 
       - name: Install dependencies
@@ -84,7 +84,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'
+          flutter-version: '3.32.8'
           channel: 'stable'
 
       - name: Install dependencies
@@ -112,7 +112,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'
+          flutter-version: '3.32.8'
           channel: 'stable'
           architecture: x64
 
@@ -129,10 +129,10 @@ jobs:
       - name: Create macOS ZIP
         run: |
           cd example/build/macos/Build/Products/Release
-          ditto -c -k --keepParent "write_folder_plugin_example.app" "write_folder_plugin_example.zip"
+          ditto -c -k --keepParent "ente_directory_picker_example.app" "ente_directory_picker_example.zip"
 
       - name: Upload macOS build
         uses: actions/upload-artifact@v4
         with:
           name: macos-build
-          path: example/build/macos/Build/Products/Release/write_folder_plugin_example.zip
+          path: example/build/macos/Build/Products/Release/ente_directory_picker_example.zip

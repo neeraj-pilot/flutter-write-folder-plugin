@@ -1,6 +1,6 @@
-# write_folder_plugin_example
+# ente_directory_picker_example
 
-Demonstrates how to use the write_folder_plugin plugin.
+Demonstrates how to use the ente_directory_picker plugin.
 
 ## Getting Started
 

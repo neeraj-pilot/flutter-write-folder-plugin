@@ -1,4 +1,4 @@
-package com.example.write_folder_plugin_example
+package com.example.ente_directory_picker_example
 
 import io.flutter.embedding.android.FlutterActivity
 

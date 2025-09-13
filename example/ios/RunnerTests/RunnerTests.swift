@@ -3,7 +3,7 @@ import UIKit
 import XCTest
 
 
-@testable import write_folder_plugin
+@testable import ente_directory_picker
 
 // This demonstrates a simple unit test of the Swift portion of this plugin's implementation.
 //
@@ -12,7 +12,7 @@ import XCTest
 class RunnerTests: XCTestCase {
 
   func testGetPlatformVersion() {
-    let plugin = WriteFolderPlugin()
+    let plugin = EnteDirectoryPickerPlugin()
 
     let call = FlutterMethodCall(methodName: "getPlatformVersion", arguments: [])
 

@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="write_folder_plugin_example"
+        android:label="ente_directory_picker_example"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
