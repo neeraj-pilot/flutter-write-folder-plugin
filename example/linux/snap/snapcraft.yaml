@@ -1,0 +1,125 @@
+name: ente-directory-picker-example
+version: '1.0.0'
+summary: Ente Directory Picker Example Application
+description: |
+  A Flutter plugin example for selecting directories and writing files
+  across all platforms. This snap demonstrates the directory picker
+  functionality on Linux with proper permissions.
+
+base: core22
+confinement: strict  # Use 'devmode' for development, 'strict' for production
+grade: stable
+
+# Architecture support
+architectures:
+  - build-on: amd64
+  - build-on: arm64
+
+# Required interfaces for directory picker functionality
+apps:
+  ente-directory-picker-example:
+    command: bin/ente_directory_picker_example
+    extensions: [gnome]  # Provides GTK and desktop integration
+
+    plugs:
+      # File system access - choose based on your needs:
+      - home                # Access to user's home directory
+      - removable-media     # Access to /media, /mnt, etc.
+      # - personal-files    # For specific paths outside home (requires store approval)
+
+      # Desktop integration
+      - desktop
+      - desktop-legacy
+      - wayland
+      - x11
+      - unity7              # For Unity desktop integration
+
+      # System integration
+      - gsettings           # For reading system settings
+      - network             # If your app needs network access
+      - browser-support     # For opening URLs in browser
+
+    environment:
+      # Flutter needs these for proper rendering
+      FLUTTER_RENDERER: "software"
+      # GTK theme integration
+      GTK_USE_PORTAL: 1
+
+parts:
+  flutter-app:
+    plugin: nil
+    source: .
+
+    build-packages:
+      - curl
+      - git
+      - unzip
+      - xz-utils
+      - zip
+      - libglu1-mesa
+      - clang
+      - cmake
+      - ninja-build
+      - pkg-config
+      - libgtk-3-dev
+      - liblzma-dev
+
+    stage-packages:
+      - libgtk-3-0
+      - libglib2.0-0
+      - libgdk-pixbuf2.0-0
+      - libatk1.0-0
+      - libcairo2
+      - libpango-1.0-0
+      - libpangocairo-1.0-0
+      - libgio2.0-cil
+
+    override-build: |
+      # Download Flutter if not present
+      if [ ! -d "$SNAPCRAFT_PART_BUILD/flutter" ]; then
+        git clone https://github.com/flutter/flutter.git --depth 1 --branch stable
+      fi
+
+      export PATH="$SNAPCRAFT_PART_BUILD/flutter/bin:$PATH"
+      flutter config --enable-linux-desktop
+      flutter pub get
+      flutter build linux --release
+
+      # Copy the built application to the install directory
+      mkdir -p $SNAPCRAFT_PART_INSTALL/bin
+      cp -r build/linux/x64/release/bundle/* $SNAPCRAFT_PART_INSTALL/
+
+  desktop-file:
+    plugin: dump
+    source: snap/gui
+    organize:
+      ente-directory-picker.desktop: usr/share/applications/ente-directory-picker.desktop
+      icon.png: usr/share/icons/ente-directory-picker.png
+
+# Personal files interface for accessing specific paths (optional)
+# Requires manual review and approval from Snap Store
+# plugs:
+#   dot-config-myapp:
+#     interface: personal-files
+#     write:
+#       - $HOME/.config/myapp
+
+# Layout for file system compatibility (if needed)
+layout:
+  /usr/lib/$SNAPCRAFT_ARCH_TRIPLET/webkit2gtk-4.0:
+    bind: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/webkit2gtk-4.0
+  /usr/share/xml/iso-codes:
+    bind: $SNAP/usr/share/xml/iso-codes
+
+# Build instructions:
+# 1. Install snapcraft: sudo snap install snapcraft --classic
+# 2. Build the snap: snapcraft
+# 3. Install locally: sudo snap install ente-directory-picker-example_*.snap --dangerous
+# 4. For production: snapcraft upload ente-directory-picker-example_*.snap
+# 5. Run: snap run ente-directory-picker-example
+
+# Notes:
+# - The 'home' plug gives access to non-hidden files in $HOME
+# - The 'removable-media' plug gives access to /media and /mnt
+# - For hidden files/folders in $HOME, use 'personal-files' interface
+# - Portal support is automatically included via the 'desktop' plug

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Ente Directory Picker
+Comment=Select directories and write files
+Exec=ente-directory-picker-example
+Icon=${SNAP}/usr/share/icons/ente-directory-picker.png
+Terminal=false
+Type=Application
+Categories=Utility;FileTools;
+Keywords=directory;folder;picker;file;write;

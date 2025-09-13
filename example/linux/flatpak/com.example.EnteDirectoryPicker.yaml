@@ -1,0 +1,80 @@
+# Example Flatpak manifest for Ente Directory Picker
+# This manifest demonstrates how to package the Flutter app with proper permissions
+
+app-id: com.example.EnteDirectoryPicker
+runtime: org.freedesktop.Platform
+runtime-version: '23.08'
+sdk: org.freedesktop.Sdk
+command: ente_directory_picker_example
+
+# Required permissions for directory picker functionality
+finish-args:
+  # File system access - choose one or more based on your needs:
+  # - --filesystem=host        # Full host filesystem access (not recommended for production)
+  # - --filesystem=home        # Access to user's home directory
+  # - --filesystem=xdg-documents  # Access to Documents folder
+  # - --filesystem=xdg-download   # Access to Downloads folder
+  - --filesystem=home
+
+  # Display server access
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --share=ipc
+
+  # Required for file chooser portal
+  - --talk-name=org.freedesktop.portal.Desktop
+  - --talk-name=org.freedesktop.portal.FileChooser
+
+  # GPU acceleration (optional but recommended)
+  - --device=dri
+
+  # Network access (if your app needs it)
+  - --share=network
+
+modules:
+  # GTK and dependencies are typically included in the runtime
+  # Add any additional dependencies here if needed
+
+  - name: ente-directory-picker
+    buildsystem: simple
+    sources:
+      - type: dir
+        path: ../..  # Path to your Flutter project
+
+    build-commands:
+      # Build the Flutter Linux app
+      - flutter build linux --release
+
+      # Install the built application
+      - install -D build/linux/x64/release/bundle/ente_directory_picker_example /app/bin/ente_directory_picker_example
+
+      # Copy all bundle files
+      - cp -r build/linux/x64/release/bundle/* /app/
+
+      # Create desktop file
+      - |
+        cat > /app/share/applications/com.example.EnteDirectoryPicker.desktop <<EOF
+        [Desktop Entry]
+        Name=Ente Directory Picker Example
+        Comment=A Flutter plugin for selecting directories
+        Exec=ente_directory_picker_example
+        Icon=com.example.EnteDirectoryPicker
+        Terminal=false
+        Type=Application
+        Categories=Utility;FileTools;
+        EOF
+
+      # Install icon (replace with your actual icon)
+      - install -D linux/icon.png /app/share/icons/hicolor/256x256/apps/com.example.EnteDirectoryPicker.png
+
+# Build instructions:
+# 1. Install Flatpak and Flatpak Builder
+# 2. Install Flutter SDK
+# 3. Run: flatpak-builder --user --install --force-clean build-dir com.example.EnteDirectoryPicker.yaml
+# 4. Run the app: flatpak run com.example.EnteDirectoryPicker
+
+# For production deployment:
+# 1. Create a proper app ID following reverse DNS notation
+# 2. Minimize filesystem permissions to only what's necessary
+# 3. Sign the package for distribution
+# 4. Submit to Flathub or your preferred repository
