@@ -136,3 +136,55 @@ jobs:
         with:
           name: macos-build
           path: example/build/macos/Build/Products/Release/ente_directory_picker_example.zip
+
+  # Create release with artifacts
+  release:
+    needs: [build-android, build-linux, build-windows, build-macos]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Create release packages
+        run: |
+          # Rename Android APK
+          mv android-apk/app-release.apk ente-directory-picker-example.apk
+
+          # Package Linux build
+          cd linux-build && tar czf ../ente-directory-picker-example-linux.tar.gz * && cd ..
+
+          # Package Windows build
+          cd windows-build && zip -r ../ente-directory-picker-example-windows.zip * && cd ..
+
+          # Move macOS build
+          mv macos-build/ente_directory_picker_example.zip ente-directory-picker-example-macos.zip
+
+      - name: Get commit info
+        id: commit
+        run: |
+          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "date=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: dev-${{ steps.commit.outputs.date }}-${{ steps.commit.outputs.sha_short }}
+          name: Dev Build ${{ steps.commit.outputs.date }}
+          body: |
+            Development build from commit ${{ github.sha }}
+
+            ### Downloads
+            - **Android:** ente-directory-picker-example.apk
+            - **Linux:** ente-directory-picker-example-linux.tar.gz
+            - **Windows:** ente-directory-picker-example-windows.zip
+            - **macOS:** ente-directory-picker-example-macos.zip
+          files: |
+            ente-directory-picker-example.apk
+            ente-directory-picker-example-linux.tar.gz
+            ente-directory-picker-example-windows.zip
+            ente-directory-picker-example-macos.zip
+          draft: false
+          prerelease: true
